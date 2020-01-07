@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage[final]{neurips_2019}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{braket}
+\usepackage{tikz}
+
+% Bibliography stuff
+\usepackage{biblatex}
+\addbibresource{bibber.bib}
+
+%%%% CUSTOM COMMANDS %%%%
+
+% General math symbols
+\newcommand{\alphabet}{\Sigma}
+\newcommand{\alphabetn}[1]{\alphabet^{#1}}
+\newcommand{\alphabetstar}{\alphabetn{*}}
+\newcommand{\alphabetsize}{|\alphabet|}
+\newcommand{\alphabethat}{\hat{\alphabet}}
+\newcommand{\alphabetstarhat}{\alphabethat^{*}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\K}{\mathbb{K}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Rplus}{\mathbb{R}_{\geq0}}
+\DeclareMathOperator{\Tr}{Tr}
+\newcommand{\ketbra}[2]{\ket{#1}\!\bra{#2}}
+
+% MPS symbols
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\Ahat}{\hat\A}
+\newcommand{\Asym}[1]{A_{#1}}
+\newcommand{\p}[1]{P_{#1}}
+\newcommand{\pA}{\p{\A}}
+\newcommand{\DtD}{D \times D}
+\newcommand{\KDtD}{\K^{\DtD}}
+\newcommand{\Bound}{\Omega}
+\newcommand{\Boundtype}[2]{\Bound_{#1}^{(#2)}}
+
+% Formatting commands
+\newcommand{\knorm}{$k$-norm }
+
+%%%% BEGIN DOCUMENT %%%%
+
+\title{Recurrent Tensor Networks}
+\author{
+  Jacob E. Miller \\
+  Mila (Montreal, Canada) \\
+  Tunnel (New York, USA) \\
+  \texttt{jmjacobmiller@gmail.com} \\
+}
+
+\begin{document}
+
+\maketitle
+
+% \begin{abstract}
+% [ABSTRACT HERE]
+% \end{abstract}
+
+\section{Mathematical Taxonomy of Uniform MPS}
+
+Here we will investigate a variant of (vanilla) recurrent neural networks (RNN's), one which is well-suited for symbolic modeling tasks and has a mathematical structure with deep connections to tensor algebra. This model has been independently discovered on several occasions, and studied under such names as ``weighted finite automata'', ``tensor trains'', and ``matrix product states''. These names all refer to particular models with slight differences from what is studied here, but I will nonetheless refer to this structure of interest as an MPS, or uniform MPS when more clarity is needed\footnote{The names MPS and tensor train can also denote non-square matrix representations of fixed-length strings, but in our setting this will never be the case.}.
+
+\subsection{Representing Strings with Matrices}
+At the heart of this model is a collection of $D$-dimensional square matrices $A_{\Sigma} := \{A_\sigma\}_{\sigma \in \Sigma}$, one for each member of a defining alphabet $\Sigma$. $D$ is the principle capacity parameter of the model, referred to here as its \textit{bond dimension}, and is similar to the number of hidden units in an RNN.
+
+$A_\Sigma$ can be thought of as a matrix-valued representation of $\Sigma$, one which trivially extends to a linear map from a defining vector space of ``one-hot'' character representations into a fixed space of matrices. But more generally, this representation of individual characters naturally lifts to a representation of arbitrary strings via matrix multiplication. For a length-$n$ string $s = \sigma_1 \sigma_2 \sigma_n$, taking the product of the corresponding character matrices yields a square matrix of the form\footnote{This explains the `M' and `P' of MPS, with the `S' coming from the motivating example of state vectors in quantum mechanics.}.
+
+\begin{equation}
+\label{eq:matrix_product}
+    A_s = A_{\sigma_1} A_{\sigma_2} \cdots A_{\sigma_n}.
+\end{equation}
+
+Mathematically, the form of \eqref{eq:matrix_product} can be read as a statement that our matrix-valued string representation is a monoid homomorphism from the free monoid $\Sigma^*$ to the space of square matrices. And as with $A_{\Sigma}$, this representation $A_{\Sigma^*}$ further extends to an (associative) algebra homomorphism from the free tensor algebra (defined relative to $\Sigma$) into a closed matrix algebra.
+
+\subsection{The Representation Seen as a Linear Map}
+One way of viewing our representation $A_{\Sigma^*}$ is as a linear map from a countably infinite space $Lin(\Sigma^*)$ to a space of matrices $End(D)$. Both spaces have inner products, the former defined by the orthonormal one-hot encodings of strings $s$, and the latter with the Hilbert-Schmidt inner product $\langle B, C\rangle = \Tr(B C^\dagger)$. Given that the matrices in $End(D)$ form a vector space of dimension $D^2$, the map $A_{\Sigma^*}$ must have rank at most $D^2$. The constraint that the image of $A_{\Sigma^*}$ is closed under multiplication places further constraints on the rank, but this isn't important for our purposes.
+
+An important property we can ask of $A_{\Sigma^*}$ is whether it is a compact operator, meaning that the norm of our matrices $A_s$ is bounded by a constant $M$ as $\left\|A_s\right\| \leq M$, for all $s \in \Sigma^*$. One nice fact about compact operators is that they admit an infinite-dimensional generalization of the singular value decomposition, expressing $A_{\Sigma^*}$ as a product $A_{\Sigma^*} = U S V$. Given that our map has a finite rank $r$, $S$ will take the form $S = diag(s_1, s_2, \ldots, s_r)$, while $U$ and $V$ satisfy $U^\dagger U = V V^\dagger = I_r$. 
+
+Note that $V$ maps strings $s$ into $r$-dimensional vectors $v_s$, in a manner which is uniform in a certain sense. In particular, summing together the rank-1 positive matrices formed by the $v_s$, the condition $V V^\dagger$ gives us
+
+\begin{equation}
+    \sum_{s\in \Sigma_*} v_s v_s^\dagger = I_r.
+\end{equation}
+
+This condition implies that each component of our vector representation $\{v_s\}_{s\in \Sigma^*}$ has zero mean and identity covariance, when averaged over all possible strings. In this sense, the basic structure of a uniform MPS leads to a special choice of vector-valued embedding for every string in our alphabet (provided the representation map $A_{\Sigma^*}$ is compact). We will play with this structure further after we have introduced the Born machine architecture for probabilistic language modeling.
+
+% \printbibliography
+
+\end{document}
